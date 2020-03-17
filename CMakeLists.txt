@@ -1,4 +1,4 @@
-# Swisseph CMakeLists.txt
+# swisseph CMakeLists.txt
 
 cmake_minimum_required( VERSION 3.10 )
 project( cswisseph )
@@ -19,6 +19,20 @@ set( SOURCES
     swephlib.c
     )
 
+set( HEADERS
+    swedate.h
+    swedll.h
+    swehouse.h
+    swejpl.h
+    swemptab.h
+    swenut2000a.h
+    sweodef.h
+    swepcalc.h
+    sweph.h
+    swephexp.h
+    swephlib.h
+    )
+
 include_directories( BEFORE . )
 
 if ( MSVC )
@@ -32,4 +46,7 @@ endif()
 
 add_library( swe STATIC ${SOURCES} )
 
-# vi: set ai et sw=4:
+install( TARGETS swe ARCHIVE DESTINATION lib )
+install( FILES ${HEADERS} DESTINATION include/swisseph )
+
+# vi: ai et sw=4 ts=4 sts=4
