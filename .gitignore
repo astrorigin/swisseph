@@ -4,5 +4,6 @@
 *.o
 *.so
 
+/build*
 /swetest
 
