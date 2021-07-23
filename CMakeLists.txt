@@ -14,7 +14,6 @@ set( SOURCES
     swemmoon.c
     swemplan.c
     #swemptab.c
-    swepcalc.c
     sweph.c
     swephlib.c
     )
@@ -27,7 +26,6 @@ set( HEADERS
     swemptab.h
     swenut2000a.h
     sweodef.h
-    swepcalc.h
     sweph.h
     swephexp.h
     swephlib.h
