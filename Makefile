@@ -1,6 +1,6 @@
 # $Header$
 # this Makefile creates a SwissEph library and a swetest sample on 64-bit
-# Redhat Enterprise Linux RHEL 6.
+# Redhat Enterprise Linux RHEL 7.
 
 # The mode marked as 'Linux' should also work with the GNU C compiler
 # gcc on other systems. 
@@ -13,7 +13,7 @@
 # send email to the Swiss Ephemeris mailing list.
 #
 
-CFLAGS = -g -Wall -fPIC  	# for Linux and other gcc systems
+CFLAGS =  -g -Wall -fPIC # for Linux and other gcc systems
 OP=$(CFLAGS)  
 CC=cc	#for Linux
 
@@ -29,6 +29,9 @@ SWEOBJ = swedate.o swehouse.o swejpl.o swemmoon.o swemplan.o sweph.o\
 swetest: swetest.o libswe.a
 	$(CC) $(OP) -o swetest swetest.o -L. -lswe -lm -ldl
 
+swevents: swevents.o libswe.a
+	$(CC) $(OP) -o swevents swevents.o -L. -lswe -lm -ldl
+
 swemini: swemini.o libswe.a
 	$(CC) $(OP) -o swemini swemini.o -L. -lswe -lm -ldl
 
@@ -41,8 +44,15 @@ libswe.a: $(SWEOBJ)
 libswe.so: $(SWEOBJ)
 	$(CC) -shared -o libswe.so $(SWEOBJ)
 
+test:
+	cd setest && make && ./setest t
+
+test.exp:
+	cd setest && make && ./setest -g t
+
 clean:
 	rm -f *.o swetest libswe*
+	cd setest && make clean
 	
 ###
 swecl.o: swejpl.h sweodef.h swephexp.h swedll.h sweph.h swephlib.h
@@ -57,3 +67,4 @@ swemplan.o: swephexp.h sweodef.h swedll.h sweph.h swephlib.h swemptab.h
 sweph.o: swejpl.h sweodef.h swephexp.h swedll.h sweph.h swephlib.h
 swephlib.o: swephexp.h sweodef.h swedll.h sweph.h swephlib.h
 swetest.o: swephexp.h sweodef.h swedll.h
+swevents.o: swephexp.h sweodef.h swedll.h
