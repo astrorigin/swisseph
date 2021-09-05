@@ -47,4 +47,17 @@ add_library( swe STATIC ${SOURCES} )
 install( TARGETS swe ARCHIVE DESTINATION lib )
 install( FILES ${HEADERS} DESTINATION include/swisseph )
 
+# export some variables
+set( LIBSWE_INCLUDE_PATH ${CMAKE_CURRENT_SOURCE_DIR}
+    CACHE STRING "Path to swisseph header files" )
+
+# build some executable
+if ( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/mytest.c" )
+    add_executable( mytest mytest.c )
+    target_link_libraries( mytest swe )
+    if ( NOT MSVC )
+        target_link_libraries( mytest m dl )
+    endif()
+endif()
+
 # vi: ai et sw=4 ts=4 sts=4
