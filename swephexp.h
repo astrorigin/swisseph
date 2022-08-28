@@ -709,14 +709,14 @@ ext_def(int32) swe_calc_ut(double tjd_ut, int32 ipl, int32 iflag,
 
 ext_def(int32) swe_calc_pctr(double tjd, int32 ipl, int32 iplctr, int32 iflag, double *xxret, char *serr);
 
-ext_def(double) swe_solcross(double x2cross, double jd_et, int flag, char *serr);
-ext_def(double) swe_solcross_ut(double x2cross, double jd_ut, int flag, char *serr);
-ext_def(double) swe_mooncross(double x2cross, double jd_et, int flag, char *serr);
-ext_def(double) swe_mooncross_ut(double x2cross, double jd_ut, int flag, char *serr);
-ext_def(double) swe_mooncross_node(double jd_et, int flag, double *xlon, double *xlat, char *serr);
-ext_def(double) swe_mooncross_node_ut(double jd_ut, int flag, double *xlon, double *xlat, char *serr);
-ext_def(int32) swe_helio_cross(int ipl, double x2cross, double jd_et, int iflag, int dir, double *jd_cross, char *serr);
-ext_def(int32) swe_helio_cross_ut(int ipl, double x2cross, double jd_ut, int iflag, int dir, double *jd_cross, char *serr);
+ext_def(double) swe_solcross(double x2cross, double jd_et, int32 flag, char *serr);
+ext_def(double) swe_solcross_ut(double x2cross, double jd_ut, int32 flag, char *serr);
+ext_def(double) swe_mooncross(double x2cross, double jd_et, int32 flag, char *serr);
+ext_def(double) swe_mooncross_ut(double x2cross, double jd_ut, int32 flag, char *serr);
+ext_def(double) swe_mooncross_node(double jd_et, int32 flag, double *xlon, double *xlat, char *serr);
+ext_def(double) swe_mooncross_node_ut(double jd_ut, int32 flag, double *xlon, double *xlat, char *serr);
+ext_def(int32) swe_helio_cross(int32 ipl, double x2cross, double jd_et, int32 iflag, int32 dir, double *jd_cross, char *serr);
+ext_def(int32) swe_helio_cross_ut(int32 ipl, double x2cross, double jd_ut, int32 iflag, int32 dir, double *jd_cross, char *serr);
 
 /* fixed stars */
 ext_def( int32 ) swe_fixstar(
@@ -743,10 +743,10 @@ ext_def(int32) swe_fixstar2_mag(char *star, double *mag, char *serr);
 ext_def( void ) swe_close(void);
 
 /* set directory path of ephemeris files */
-ext_def( void ) swe_set_ephe_path(char *path);
+ext_def( void ) swe_set_ephe_path(const char *path);
 
 /* set file name of JPL file */
-ext_def( void ) swe_set_jpl_file(char *fname);
+ext_def( void ) swe_set_jpl_file(const char *fname);
 
 /* get planet name */
 ext_def( char *) swe_get_planet_name(int ipl, char *spname);
@@ -837,7 +837,7 @@ ext_def( int ) swe_houses_armc_ex2(
 ext_def(double) swe_house_pos(
 	double armc, double geolat, double eps, int hsys, double *xpin, char *serr);
 
-ext_def(char *) swe_house_name(int hsys);
+ext_def(const char *) swe_house_name(int hsys);
 
 
 
