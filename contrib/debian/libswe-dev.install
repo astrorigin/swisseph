@@ -1,0 +1,2 @@
+include/*.h usr/include
+lib/pkgconfig/swe.pc lib/pkgconfig

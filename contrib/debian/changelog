@@ -1,0 +1,5 @@
+libswe (2.10.03-1) UNRELEASED; urgency=medium
+
+  * Initial release. (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Stanislas Marquis <stan@astrorigin.com>  Mon, 05 Sep 2022 00:17:29 +0200

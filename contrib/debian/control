@@ -1,0 +1,44 @@
+Source: libswe
+Section: libs
+Priority: optional
+Maintainer: Stanislas Marquis <stan@astrorigin.com>
+Rules-Requires-Root: no
+Build-Depends:
+ debhelper-compat (= 13),
+Standards-Version: 4.6.1
+Homepage: <insert the upstream URL, if relevant>
+#Vcs-Browser: https://salsa.debian.org/debian/libswe
+#Vcs-Git: https://salsa.debian.org/debian/libswe.git
+
+Package: libswe-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends:
+ libswe2 (= ${binary:Version}),
+ ${misc:Depends},
+Description: <insert up to 60 chars description>
+ <Insert long description, indented with spaces.>
+
+Package: libswe2
+Architecture: any
+Multi-Arch: same
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends},
+Description: <insert up to 60 chars description>
+ <Insert long description, indented with spaces.>
+
+Package: libswe-doc
+Architecture: all
+Description: documentation for libswe
+ <insert long description, indented with spaces>
+
+Package: swetest
+Architecture: any
+Multi-Arch: same
+Depends:
+ libswe2 (= ${binary:Version}),
+ ${misc:Depends},
+Description: <insert up to 60 chars description>
+ <Insert long description, indented with spaces.>

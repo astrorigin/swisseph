@@ -1,0 +1,6 @@
+Name: Swiss Ephemeris
+Description: Library for astronomical/astrological application development.
+Version: 2.10.3
+URL: https://www.astro.com/swisseph
+Libs: -L/usr/lib -lswe -lm -ldl
+Cflags: -I/usr/include

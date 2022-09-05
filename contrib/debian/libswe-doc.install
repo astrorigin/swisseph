@@ -1,0 +1,2 @@
+share/doc/libswe/*.md usr/share/doc/libswe
+share/doc/libswe/media/* usr/share/doc/libswe/media

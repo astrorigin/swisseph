@@ -1,0 +1,60 @@
+# Build and install libswe.so and swetest
+
+VERSION = 2.10.3
+
+CFLAGS = -g -O2 -Wall -fPIC
+OP = $(CFLAGS)
+CC = gcc
+DESTDIR = /usr/local
+
+.c.o:
+	$(CC) -c $(OP) $<
+
+SWEINC = swephexp.h sweodef.h
+SWEOBJ = swedate.o swehouse.o swejpl.o swemmoon.o swemplan.o sweph.o\
+	 swephlib.o swecl.o swehel.o
+
+all: libswe.so.$(VERSION) libswe.so swetest
+
+swetest: swetest.o libswe.so libswe.so.$(VERSION)
+	$(CC) $(OP) -o $@ $< -L. -lswe -lm -ldl
+
+libswe.so:
+	ln -sfr $@.$(VERSION) $@
+
+libswe.so.$(VERSION): $(SWEOBJ)
+	$(CC) -shared -o $@ $^
+
+clean:
+	rm -f *.o swetest libswe*
+
+install: all
+	mkdir -p $(DESTDIR)/bin
+	mkdir -p $(DESTDIR)/include
+	mkdir -p $(DESTDIR)/lib/pkgconfig
+	mkdir -p $(DESTDIR)/share/doc/libswe/media
+	cp -f swetest $(DESTDIR)/bin
+	cp -f $(SWEINC) $(DESTDIR)/include
+	cp -f swe.pc $(DESTDIR)/lib/pkgconfig
+	cp -f libswe.so* $(DESTDIR)/lib
+	cp -f doc/*.md $(DESTDIR)/share/doc/libswe
+	cp -f doc/media/* $(DESTDIR)/share/doc/libswe/media
+
+
+###
+swecl.o: swejpl.h sweodef.h swephexp.h swedll.h sweph.h swephlib.h
+sweclips.o: sweodef.h swephexp.h swedll.h
+swedate.o: swephexp.h sweodef.h swedll.h
+swehel.o: swephexp.h sweodef.h swedll.h
+swehouse.o: swephexp.h sweodef.h swedll.h swephlib.h swehouse.h
+swejpl.o: swephexp.h sweodef.h swedll.h sweph.h swejpl.h
+swemini.o: swephexp.h sweodef.h swedll.h
+swemmoon.o: swephexp.h sweodef.h swedll.h sweph.h swephlib.h
+swemplan.o: swephexp.h sweodef.h swedll.h sweph.h swephlib.h swemptab.h
+sweph.o: swejpl.h sweodef.h swephexp.h swedll.h sweph.h swephlib.h
+swephlib.o: swephexp.h sweodef.h swedll.h sweph.h swephlib.h
+swetest.o: swephexp.h sweodef.h swedll.h
+swevents.o: swephexp.h sweodef.h swedll.h
+
+.PHONY: all clean install
+

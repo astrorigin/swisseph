@@ -6,4 +6,10 @@
 
 /build*
 /swetest
+/swemini
+/swevents
+
+/contrib/libswe*
+/contrib/master.tar.gz
+/contrib/swetest*
 
