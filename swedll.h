@@ -14,7 +14,7 @@
   Swiss Ephemeris is distributed with NO WARRANTY OF ANY KIND.  No author
   or distributor accepts any responsibility for the consequences of using it,
   or for whether it serves any particular purpose or works at all, unless he
-  or she says so in writing.
+  or she says so in writing.  
 
   Swiss Ephemeris is made available by its authors under a dual licensing
   system. The software developer, who uses any part of Swiss Ephemeris
@@ -33,7 +33,7 @@
   See https://www.gnu.org/licenses/agpl-3.0.html
 
   If the developer choses the Swiss Ephemeris Professional license,
-  he must follow the instructions as found in http://www.astro.com/swisseph/
+  he must follow the instructions as found in http://www.astro.com/swisseph/ 
   and purchase the Swiss Ephemeris Professional Edition from Astrodienst
   and sign the corresponding license contract.
 
@@ -64,7 +64,7 @@ extern "C" {
 #ifndef _SWEDLL_H
 #define _SWEDLL_H
 
-#ifndef _SWEPHEXP_INCLUDED
+#ifndef _SWEPHEXP_INCLUDED   
 #include "swephexp.h"
 #endif
 
@@ -84,9 +84,9 @@ extern "C" {
     #define CALL_CONV_IMP __cdecl
   #else
     #define CALL_CONV_IMP __stdcall
-  #endif
+  #endif 
 #else
-  #define CALL_CONV_IMP
+  #define CALL_CONV_IMP 
 #endif
 
 DllImport int32 CALL_CONV_IMP swe_heliacal_ut(double JDNDaysUTStart, double *geopos, double *datm, double *dobs, char *ObjectName, int32 TypeEvent, int32 iflag, double *dret, char *serr);
@@ -101,17 +101,17 @@ DllImport double CALL_CONV_IMP swe_degnorm(double deg);
 DllImport char * CALL_CONV_IMP swe_version(char *);
 DllImport char * CALL_CONV_IMP swe_get_library_path(char *);
 
-DllImport int32 CALL_CONV_IMP swe_calc(
-        double tjd, int ipl, int32 iflag,
+DllImport int32 CALL_CONV_IMP swe_calc( 
+        double tjd, int ipl, int32 iflag, 
         double *xx,
         char *serr);
 DllImport int32 CALL_CONV_IMP  swe_calc_pctr(
-        double tjd, int32 ipl, int32 iplctr, int32 iflag,
-	double *xxret,
+        double tjd, int32 ipl, int32 iplctr, int32 iflag, 
+	double *xxret, 
 	char *serr);
 
-DllImport int32 CALL_CONV_IMP swe_calc_ut(
-        double tjd_ut, int32 ipl, int32 iflag,
+DllImport int32 CALL_CONV_IMP swe_calc_ut( 
+        double tjd_ut, int32 ipl, int32 iflag, 
         double *xx,
         char *serr);
 
@@ -133,12 +133,12 @@ DllImport int32 CALL_CONV_IMP swe_helio_cross_ut(
 	int ipl, double x2cross, double jd_ut, int32 iflag, int32 dir, double *jd_cross, char *serr);
 
 DllImport int32 CALL_CONV_IMP swe_fixstar(
-        char *star, double tjd, int32 iflag,
+        char *star, double tjd, int32 iflag, 
         double *xx,
         char *serr);
 
 DllImport int32 CALL_CONV_IMP swe_fixstar_ut(
-        char *star, double tjd_ut, int32 iflag,
+        char *star, double tjd_ut, int32 iflag, 
         double *xx,
         char *serr);
 
@@ -146,12 +146,12 @@ DllImport int32 CALL_CONV_IMP swe_fixstar_mag(
         char *star, double *xx, char *serr);
 
 DllImport int32 CALL_CONV_IMP swe_fixstar2(
-        char *star, double tjd, int32 iflag,
+        char *star, double tjd, int32 iflag, 
         double *xx,
         char *serr);
 
 DllImport int32 CALL_CONV_IMP swe_fixstar2_ut(
-        char *star, double tjd_ut, int32 iflag,
+        char *star, double tjd_ut, int32 iflag, 
         double *xx,
         char *serr);
 
@@ -165,23 +165,23 @@ DllImport double CALL_CONV_IMP swe_deltat_ex(double tjd, int32 iflag, char *serr
 DllImport double CALL_CONV_IMP swe_deltat(double tjd);
 
 DllImport int  CALL_CONV_IMP swe_houses(
-        double tjd_ut, double geolat, double geolon, int hsys,
+        double tjd_ut, double geolat, double geolon, int hsys, 
         double *hcusps, double *ascmc);
 
 DllImport int  CALL_CONV_IMP swe_houses_ex(
-        double tjd_ut, int32 iflag, double geolat, double geolon, int hsys,
+        double tjd_ut, int32 iflag, double geolat, double geolon, int hsys, 
         double *hcusps, double *ascmc);
 
 DllImport int  CALL_CONV_IMP swe_houses_ex2(
-        double tjd_ut, int32 iflag, double geolat, double geolon, int hsys,
+        double tjd_ut, int32 iflag, double geolat, double geolon, int hsys, 
         double *hcusps, double *ascmc, double *cusp_speed, double *ascmc_speed, char *serr);
 
 DllImport int  CALL_CONV_IMP swe_houses_armc(
-        double armc, double geolat, double eps, int hsys,
+        double armc, double geolat, double eps, int hsys, 
         double *hcusps, double *ascmc);
 
 DllImport int  CALL_CONV_IMP swe_houses_armc_ex2(
-        double armc, double geolat, double eps, int hsys,
+        double armc, double geolat, double eps, int hsys, 
         double *hcusps, double *ascmc, double *cusp_speed, double *ascmc_speed, char *serr);
 
 DllImport double  CALL_CONV_IMP swe_house_pos(
@@ -228,18 +228,18 @@ DllImport void  CALL_CONV_IMP swe_utc_time_zone(
 	int32 *ihour_out, int32 *imin_out, double *dsec_out);
 
 DllImport int32  CALL_CONV_IMP swe_utc_to_jd(
-        int32 iyear, int32 imonth, int32 iday,
-	int32 ihour, int32 imin, double dsec,
+        int32 iyear, int32 imonth, int32 iday, 
+	int32 ihour, int32 imin, double dsec, 
 	int32 gregflag, double *dret, char *serr);
 
 DllImport void  CALL_CONV_IMP swe_jdet_to_utc(
-        double tjd_et, int32 gregflag,
-	int32 *iyear, int32 *imonth, int32 *iday,
+        double tjd_et, int32 gregflag, 
+	int32 *iyear, int32 *imonth, int32 *iday, 
 	int32 *ihour, int32 *imin, double *dsec);
 
 DllImport void  CALL_CONV_IMP swe_jdut1_to_utc(
-        double tjd_ut, int32 gregflag,
-	int32 *iyear, int32 *imonth, int32 *iday,
+        double tjd_ut, int32 gregflag, 
+	int32 *iyear, int32 *imonth, int32 *iday, 
 	int32 *ihour, int32 *imin, double *dsec);
 
 DllImport int  CALL_CONV_IMP swe_time_equ(
@@ -262,11 +262,11 @@ DllImport void  CALL_CONV_IMP swe_set_topo(double geolon, double geolat, double 
 DllImport void CALL_CONV_IMP swe_set_astro_models(char *samod, int32 iflag);
 DllImport void CALL_CONV_IMP swe_get_astro_models(char *samod, char *sdet, int32 iflag);
 
-/****************************
- * from swecl.c
+/**************************** 
+ * from swecl.c 
  ****************************/
 
-/* computes geographic location and attributes of solar
+/* computes geographic location and attributes of solar 
  * eclipse at a given tjd */
 DllImport int32  CALL_CONV_IMP swe_sol_eclipse_where(double tjd, int32 ifl, double *geopos, double *attr, char *serr);
 
@@ -288,10 +288,10 @@ DllImport int32  CALL_CONV_IMP swe_lun_occult_when_glob(double tjd_start, int32 
 
 /* computes attributes of a lunar eclipse for given tjd */
 DllImport int32  CALL_CONV_IMP swe_lun_eclipse_how(
-          double tjd_ut,
+          double tjd_ut, 
           int32 ifl,
 	  double *geopos,
-          double *attr,
+          double *attr, 
           char *serr);
 DllImport int32  CALL_CONV_IMP swe_lun_eclipse_when(double tjd_start, int32 ifl, int32 ifltype, double *tret, int32 backward, char *serr);
 DllImport int32  CALL_CONV_IMP swe_lun_eclipse_when_loc(double tjd_start, int32 ifl, double *geopos, double *tret, double *attr, int32 backward, char *serr);
@@ -310,50 +310,50 @@ DllImport void  CALL_CONV_IMP swe_azalt(
       double *geopos,
       double atpress,
       double attemp,
-      double *xin,
-      double *xaz);
+      double *xin, 
+      double *xaz); 
 
 DllImport void  CALL_CONV_IMP swe_azalt_rev(
       double tjd_ut,
       int32 calc_flag,
       double *geopos,
-      double *xin,
-      double *xout);
+      double *xin, 
+      double *xout); 
 
 DllImport int32  CALL_CONV_IMP swe_rise_trans(
-               double tjd_ut, int32 ipl, char *starname,
+               double tjd_ut, int32 ipl, char *starname, 
 	       int32 epheflag, int32 rsmi,
-               double *geopos,
+               double *geopos, 
 	       double atpress, double attemp,
                double *tret,
                char *serr);
 
 DllImport int32  CALL_CONV_IMP swe_rise_trans_true_hor(
-               double tjd_ut, int32 ipl, char *starname,
+               double tjd_ut, int32 ipl, char *starname, 
 	       int32 epheflag, int32 rsmi,
-               double *geopos,
+               double *geopos, 
 	       double atpress, double attemp,
 	       double horhgt,
                double *tret,
                char *serr);
 
-DllImport int32  CALL_CONV_IMP swe_nod_aps(double tjd_et, int32 ipl, int32 iflag,
+DllImport int32  CALL_CONV_IMP swe_nod_aps(double tjd_et, int32 ipl, int32 iflag, 
                       int32  method,
-                      double *xnasc, double *xndsc,
-                      double *xperi, double *xaphe,
+                      double *xnasc, double *xndsc, 
+                      double *xperi, double *xaphe, 
                       char *serr);
 
-DllImport int32  CALL_CONV_IMP swe_nod_aps_ut(double tjd_ut, int32 ipl, int32 iflag,
+DllImport int32  CALL_CONV_IMP swe_nod_aps_ut(double tjd_ut, int32 ipl, int32 iflag, 
                       int32  method,
-                      double *xnasc, double *xndsc,
-                      double *xperi, double *xaphe,
+                      double *xnasc, double *xndsc, 
+                      double *xperi, double *xaphe, 
                       char *serr);
 
 DllImport int32 CALL_CONV_IMP swe_get_orbital_elements(double tjd_et, int32 ipl, int32 iflag, double *dret, char *serr);
 
 DllImport int32 CALL_CONV_IMP swe_orbit_max_min_true_distance(double tjd_et, int32 ipl, int32 iflag, double *dmax, double *dmin, double *dtrue, char *serr);
 
-/*******************************************************
+/******************************************************* 
  * other functions from swephlib.c;
  * they are not needed for Swiss Ephemeris,
  * but may be useful to former Placalc users.

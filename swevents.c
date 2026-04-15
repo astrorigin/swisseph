@@ -1,4 +1,8 @@
 /* SWISSEPH
+ * 
+ * IMPORTANT NOTICE: swevents.c is not a supported part of Swiss Ephemeris.
+ * If you find bugs and short comings, please fix the source code and submit the fixes
+ * on the Swiss Ephemeris mailing list.
 
 **************************************************************/
 /* Copyright (C) 1997 - 2021 Astrodienst AG, Switzerland.  All rights reserved.
@@ -55,9 +59,12 @@
   for promoting such software, products or services.
 */
 
-static char *info = "\n\
-  Computes planetary phenomena\n\
-  for a given start date and a time range.\n\
+static char *info1 = "\n\
+  Swevents computes planetary phenomena\n\
+  for a given start date and a time range.\n\n\
+  IMPORTANT NOTICE: swevents.c is not a supported part of Swiss Ephemeris.\n\
+  If you find bugs and short comings, please fix the source code and submit the fixes\n\
+  on the Swiss Ephemeris mailing list.\n\n\
   Input can either be a date or an absolute julian day number.\n\
   0:00 (midnight).\n\
   Precision of this program:\n\
@@ -86,21 +93,30 @@ static char *info = "\n\
 	swevents -p3 -bj2436723.5 -n1000 -s1 -ejpl \n\
 	   for -p2 (mercury), use -s0.3 \n\
 	\n\
-	-mscreen output on screen\n\
-	-mps postscript [default: HP Laserjet]\n\
 	-cl	do not print command line at bottom of 1st page\n\
 	-p    	planet to be computed.\n\
 		See the letter coding below.\n\
-	-nN	output data for N consecutive days; if no -n option\n\
-		is given, the default is 1. If the option -n without a\n\
-		number is given, the default is 20.\n\
+	-nN	search events for N consecutive days; if no -n option\n\
+		is given, the default is 366 (one year).\n\
 	-sN	timestep N days, default 1. This option is only meaningful\n\
 		when combined with option -n.\n\
-	-edirPATH change the directory of the ephemeris files \n\
-	-cycol.. number cycles per column\n\
-	-doall | -doingr etc : do just that\n\
+	-edirPATH change the directory of the ephemeris files \n\n\
+	-doingr	report sign ingresses\n\
+	-doconj	report inferior and superior conjunctions with Sun\n\
+	-dobrill	report moments of greatest brilliance\n\
+	-dorise	report morning set or evening rise\n\
+	-doelong	report maximum elongation from Sun, for planets 1,2,3 only\n\
+	-doretro	report stations\n\
+	-doaps	report minimal and maximal distance from Earth\n\
+	-donode	report when on ascending or descending node\n\n\
+	-dodecl report when on minimal and maximal declination\n\n\
+	-doall  equivalent to all -do.. options above combined\n\
+	        If used, output starts only at next cycle begin.\n\n\
 	-doing45	crossings over 15 tau, Leo, Sco, Aqu\n\
-		(are not included with doall)\n\
+	-dolphase	report lunar phases special mode(use with -p1)\n\
+	-dophase	report lunar phases in list(use with -p1)\n\
+	-doasp	report aspects between planets (-p option is ignored)\n\
+	-dovoc	report Moon void of course periods (-p option is ignored)\n\
 	-noingr  no ingresses\n\
 	-motab  special format Moon ingres table\n\
 	-mojap  special format Moon phases\n\
@@ -108,39 +124,59 @@ static char *info = "\n\
 		the begin date string contains blanks; use format -bj2400000.5\n\
 		to express the date as absolute Julian day number.\n\
 		Note: the date format is day month year (European style).\n\
-	 -eswe  swiss ephemeris\n\
-	 -ejpl  jpl ephemeris (DE431), or with ephemeris file name\n\
-	 	-ejplde200.eph\n\
-	 -emos  moshier ephemeris\n\
-	 -true	true positions\n\
-	 -noaberr	no aberration\n\
-	 -nodefl	no gravitational light deflection\n\
-	 -noprec	no precession (i.e. J2000 positions)\n\
-	 -nonut		no nutation \n\
-	 -dgap		use gap within date\n\
-	 -zlong		use long sign names\n\
-	 -znam3		use 3-letter sign names\n\
-	 -monnum	use month numbers instead of names\n\
-	 -gmtoff X	use X hours gmt offset (+ for east)\n\
-	 -tzoneTIMEZONE output date and time in timezone (hours east)\n\
-	 -transitstderr lists transits of Venus or Mercury as c style data to stderr \n\
-	 -jd	show also jd in output \n\
-	 -ep		  use extended precision in output\n\
+	-eswe  swiss ephemeris\n\
+	-ejpl  jpl ephemeris (DE431), or with ephemeris file name\n\
+	      -ejplde200.eph\n\
+	-emos  moshier ephemeris\n\
+	-true	true positions\n\
+	-noaberr	no aberration\n\
+	-nodefl	no gravitational light deflection\n\
+	-noprec	no precession (i.e. J2000 positions)\n\
+	-nonut		no nutation \n\
+	-dgap		use gap within date\n\
+	-zlong		use long sign names\n\
+	-znam3		use 3-letter sign names\n\
+	-monnum	use month numbers instead of names\n\
+	-gmtoff X	use X hours gmt offset (+ for east)\n\
+	-transitstderr lists transits of Venus or Mercury as c style data to stderr \n\
+	-jd	show also jd in output \n\
+	-ep		  use extended precision in output\n\n\
+	-tzoneTIMEZONE output date and time in timezone (hours east)\n\
+\n\
+	Options only for use by Astrodienst:\n\
+	-aznANR	 output date and time in locat time of Astrozone ANR\n\
+	-mscreen output on screen\n\
+	-mpdf pdf output \n\
+	-mps postscript \n\
+	-cycol.. number cycles per column\n\
 \n\
 	-?	display this info\n\
-\n\
-  Planet selection letters:\n\
+	-h	display this info\n\
+\n";
+static char *info2 = "Planet selection (only one possible):\n\
 	0 Sun (character zero)\n\
 	1 Moon (character 1)\n\
 	2 Mercury\n\
-	....\n\
+	3 Venus\n\
+	4 Mars\n\
+	5 Jupiter\n\
+	6 Saturn\n\
+	7 Uranus\n\
+	8 Neptune\n\
 	9 Pluto\n\
 	10 mean lunar node\n\
 	11 true lunar node\n\
 	12 mean lunar apogee\n\
 	13 true lunar apogee\n\
-	14 earth\n\
-	15 chiron  etc up to 22, see swephexp.h\n\
+	14 Earth\n\
+	15 Chiron\n\
+	16 Pholus\n\
+	17 Ceres\n\
+	18 Pallas\n\
+	19 Juno\n\
+	20 Vesta\n\
+	21 interpolated lunar apogee\n\
+	22 interpolated lunar perigee\n\
 	h00 .. h18 fictitious factors, see swephexp.h\n\
 \n\
   Date entry:\n\
@@ -177,6 +213,7 @@ static char *info = "\n\
 #  include "ourdef.h"
 #  include "astrolib.h"
 #  include "printmod.h"
+#  include "ttbs2.h"
 #else
 #  define PMODEL_SCREEN 10
 #endif
@@ -190,7 +227,7 @@ static char *info = "\n\
 #define MAX_COLS        2
 double xcol[4] = {20.0, 110.0};
 double xcol4[4] = {12.0, 60, 108.0, 156.0};
-double xdate = 25;      /* position of date */
+double xdate = 20;      /* position of date */
 double xpos = 52;       /* position of date */
 double ytop = 24;
 double line_space = 4;
@@ -215,6 +252,7 @@ int max_cols = MAX_COLS;
 #define BIT_ROUND_MIN	2
 #define BIT_ZODIAC	4
 #define BIT_LZEROES     8
+#define BIT_DECL       16
 
 #define STRLEN_OUT_TEXT 20
 
@@ -232,9 +270,10 @@ static char *month_nam[] = {"", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
 
 static char motab[13][31][10];	/* table for moon ingresses */
 
-char *planet_name;
+char *planet_name = "-";
+char spnam[256];
 AS_BOOL ephemeris_time = FALSE;
-AS_BOOL do_not_round = FALSE;
+AS_BOOL do_round_min = FALSE;
 AS_BOOL do_motab = FALSE;
 AS_BOOL do_mojap = FALSE;
 AS_BOOL date_gap = FALSE;
@@ -250,7 +289,9 @@ char sdatefrom[AS_MAXCH], sdateto[AS_MAXCH], syear0[80];
 char sdate[AS_MAXCH];
 AS_BOOL gregflag = TRUE;
 int ipl;
-double tzone = 0;
+double tzone = 0, epstrue, epsmean;
+int azn = 0;
+int global_ttb_mode = 1;	// TTB_MODE_HYBRIDX
 int whicheph = SEFLG_JPLEPH; 
 char cmdline[4 * AS_MAXCH];
 char *stit = "Planetary Phenomena";
@@ -267,7 +308,8 @@ static int find_zero(double y00, double y11, double y2, double dx,
 static int find_maximum(double y00, double y11, double y2, double dx, 
 			double *dxret, double *yret);
 static void print_item(char *s, double t, double x, double elo, double mag);
-static int print_motab();
+static int print_motab(void);
+static char *set_planet_name(int ipl);
 
 // from old swevents.c
 static char *hms(double x, int32 iflag);
@@ -302,14 +344,16 @@ static int letter_to_ipl(int letter);
 #define DO_BRILL	16
 #define DO_APS		32
 #define DO_NODE		64
-#define DO_LAT		128
+#define DO_LAT		128	// obsolete
 #define DO_INGR		256
 #define DO_LPHASE	512
 #define DO_INGR45	1024	// add ingresses over 45,135,215,305° (mid of fixed signs)
 #define DO_ASPECTS    	2048
 #define DO_VOC    	4096
+#define DO_DECL		8192
+#define DO_LPHASE0	16384	// lunar phase as part of list
 
-#define DO_ALL (DO_CONJ|DO_RISE|DO_ELONG|DO_RETRO|DO_BRILL|DO_APS|DO_NODE|DO_LAT|DO_INGR)
+#define DO_ALL (DO_CONJ|DO_RISE|DO_ELONG|DO_RETRO|DO_BRILL|DO_APS|DO_NODE|DO_INGR|DO_DECL)
 
 AS_BOOL sign_change(double x0, double x1) 
 {
@@ -323,7 +367,6 @@ int main(int argc, char *argv[])
 {
   AS_BOOL is_opposition;
   char serr[256];
-  char spnam[256];
   char sout[AS_MAXCH], s[AS_MAXCH], saves[AS_MAXCH]; 
   char *sp, *spsave;
   char *spno;
@@ -334,10 +377,11 @@ int main(int argc, char *argv[])
   int iplfrom = SE_VENUS;
   int nstep = 0, istep;
   double dx;
-  double x[6], xs[6], x0[6], x1[6], x2[6];
+  double x[6], xs[6], x0[6], x1[6], x2[6], xd[6];
   double xp[6], xp0[6], xp1[6] = {0}, xp2[6], xs0[6], xs1[6] = {0}, xs2[6];
   double xel0[6], xel1[6] = {0}, xel2[6], xang0[6], xang1[6] = {0}, xang2[6], xma0[6], xma1[6] = {0}, xma2[6];
   double xh0[6], xh1[6] = {0}, xh2[6];
+  double xd0[6], xd1[6] = {0}, xd2[6];
   double attr[20];
   double xel, xma, sunrad;
   double dt, dt1, dt2, elong, rphel;
@@ -349,17 +393,18 @@ int main(int argc, char *argv[])
   /*double tjd = 2436723.589269907;*/
   double tjd = 2436723.588888889;
   double t, te, tend, t2, t3, tstep;
-  double delt;
+  double delt, xarr[12];
   struct tm *tim;
+  int32 sid_mode = SE_SIDM_FAGAN_BRADLEY;	// only used with -sid option
   time_t tloc;
   EVENT *pev0;
   tstep = 1;
-  nstep = 300;
+  nstep = 366;
   pmodel = PMODEL_SCREEN;
   strcpy(ephepath, EPHEPATH);
   time(&tloc);
   tim = localtime (&tloc);
-  sprintf(sdate, "%d/%02d/%02d", 1900+tim->tm_year, tim->tm_mon, tim->tm_mday);
+  sprintf(sdate, "%d/%02d/%02d", 1900+tim->tm_year, tim->tm_mon + 1, tim->tm_mday);
   for (i = 1; i < argc; i++) {
     if (strcmp(argv[i], "-doall") == 0) {
       do_flag = DO_ALL;
@@ -379,16 +424,22 @@ int main(int argc, char *argv[])
       do_flag |= DO_APS;
     } else if (strcmp(argv[i], "-dolphase") == 0) {
       do_flag |= DO_LPHASE;
+    } else if (strcmp(argv[i], "-dophase") == 0) {
+      do_flag |= DO_LPHASE0;
     } else if (strcmp(argv[i], "-donode") == 0) {
       do_flag |= DO_NODE;
+    } else if (strcmp(argv[i], "-dodecl") == 0) {
+      do_flag |= DO_DECL;
     } else if (strcmp(argv[i], "-doingr") == 0) {
       do_flag |= DO_INGR;
     } else if (strcmp(argv[i], "-doing45") == 0) {
       do_flag |= DO_INGR45;
     } else if (strcmp(argv[i], "-doasp") == 0) {
       do_flag |= DO_ASPECTS;
+      iplfrom = -99;
     } else if (strcmp(argv[i], "-dovoc") == 0) {
       do_flag |= DO_VOC;
+      iplfrom = SE_MOON;
     } else if (strcmp(argv[i], "-getday") == 0) {
       get_data_of_day = TRUE;
     } else if (strcmp(argv[i], "-et") == 0) {
@@ -416,8 +467,9 @@ int main(int argc, char *argv[])
         month_nam[n] = malloc(4);
         sprintf(month_nam[n], "%3d", n);
       }
-    } else if (strcmp(argv[i], "-?") == 0) {
-      printf(info);
+    } else if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "-?") == 0) {
+      printf("%s%s", info1, info2);
+      return OK;
 #if PRINTMOD
     } else if (strcmp(argv[i], "-mpdf") == 0) {
       pmodel = PMODEL_PDF;
@@ -444,8 +496,8 @@ int main(int argc, char *argv[])
       iflag |= SEFLG_NONUT;
     } else if (strcmp(argv[i], "-noprec") == 0) {
       iflag |= SEFLG_J2000;
-    } else if (strcmp(argv[i], "-noround") == 0) {
-      do_not_round = TRUE;
+    } else if (strcmp(argv[i], "-roundmin") == 0) {
+      do_round_min = TRUE;
     } else if (strcmp(argv[i], "-dgap") == 0) {
       date_gap = TRUE;
     } else if (strcmp(argv[i], "-motab") == 0) {
@@ -487,7 +539,8 @@ int main(int argc, char *argv[])
 	exit(1);
       }
     } else if (strncmp(argv[i], "-n", 2) == 0) {
-      nstep = atoi(argv[i]+2);
+      n = atoi(argv[i]+2);
+      if (n > 0) nstep = n;
     } else if (strncmp(argv[i], "-s", 2) == 0) {
       tstep = atof(argv[i]+2);
     } else if (strncmp(argv[i], "-b", 2) == 0) {
@@ -497,28 +550,47 @@ int main(int argc, char *argv[])
     } else if (strncmp(argv[i], "-g", 2) == 0) {
       gap = argv[i] + 2;
       if (*gap == '\0') gap = "\t";
+#if PRINTMOD
+    } else if (strncmp(argv[i], "-azn", 4) == 0) {
+      azn = atoi(argv[i]+4);
+#endif
     } else if (strncmp(argv[i], "-tzone", 6) == 0) {
       tzone = atof(argv[i]+6);
     } else if (strncmp(argv[i], "-transitstderr", 6) == 0) {
       transits_to_stderr = TRUE;
+    } else if (strncmp(argv[i], "-sid", 4) == 0) {
+      iflag |= SEFLG_SIDEREAL;
+      sid_mode = atol(argv[i]+4);
+    } else if (strncmp(argv[i], "-xarr", 4) == 0) {	// experimental, implementatio incomplete
+      sp = argv[i] + 5;
+      n = sscanf(sp, "%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf", xarr, xarr+1, xarr+2,
+        xarr+3, xarr+4, xarr+5,xarr+6,xarr+7,xarr+8,xarr+9,xarr+10,xarr+11);
+      if (n != 12) {
+	printf("-xarr must be followed directly by 12 numbers, separated by comma. This is not correct\n %s\n", argv[i]);
+	exit(1);
+      }
     } else {
       printf("illegal option %s\n", argv[i]);
       exit(1);
     }
   }
+  set_planet_name(iplfrom);
   strcpy(cmdline, "Command: ");
   for (i = 0; i < argc; i++) {
     if (strlen(cmdline) + strlen(argv[i]) < sizeof(cmdline) - 2)
       sprintf(cmdline + strlen(cmdline), "%s ", argv[i]);
   }
+  swe_version(sout);
 #if PRINTMOD
   if (pmodel != PMODEL_SCREEN) {
     printmod_set_printer(pmodel, 0);
   } else {
     printf("%s\n\n", cmdline);
+    printf("Date: %s\tSwissEph version %s\n%s\n\n", sdate, sout, cmdline);
   }
 #else
-  printf("%s\n\n", cmdline);
+  printf("%s\n", "Please note: swevents is not a supported part of Swiss Ephemeris. In case of errors,\nplease debug and submit code fixes to the Swiss Ephemeris mailing list.");
+  printf("Date: %s\tSwissEph version %s\n%s\nplanet %s\n\n", sdate, sout, cmdline, planet_name);
 #endif
   swe_set_ephe_path(ephepath);
   swe_set_jpl_file(fname);
@@ -573,6 +645,9 @@ int main(int argc, char *argv[])
 							get jd for the
 							date you want */
   }
+  if ((iflag & SEFLG_SIDEREAL)) {
+    swe_set_sid_mode(sid_mode, 0, 0);
+  }
   sprintf(syear0, "%02d", jyear);
   swe_revjul(tjd + tstep * nstep, gregflag, &jyear, &jmon, &jday, &jut);
   sprintf(sdateto, "%02d", jyear);
@@ -587,46 +662,12 @@ int main(int argc, char *argv[])
       gregflag = TRUE;
     swe_revjul(t, gregflag, &jyear, &jmon, &jday, &jut);
     if (!ephemeris_time) {
-      //delt = swe_deltat(t);
       delt = swe_deltat_ex(t, whicheph, serr);
       te = t + delt;
     } else {
       te = t;
     }
     ipl = iplfrom;
-    switch(ipl) {
-      case SE_SUN:
-	planet_name = "Sun";
-	break;
-      case SE_VENUS:
-	planet_name = "Venus";
-	break;
-      case SE_MERCURY:
-	planet_name = "Mercury";
-	break;
-      case SE_MARS:
-	planet_name = "Mars";
-	break;
-      case SE_JUPITER:
-	planet_name = "Jupiter";
-	break;
-      case SE_SATURN:
-	planet_name = "Saturn";
-	break;
-      case SE_URANUS:
-	planet_name = "Uranus";
-	break;
-      case SE_NEPTUNE:
-	planet_name = "Neptune";
-	break;
-      case SE_PLUTO:
-	planet_name = "Pluto";
-	break;
-      default:
-	swe_get_planet_name(ipl, spnam);
-	planet_name = spnam;
-	break;
-    }
     // handle the three old swevents.c modes and exit
     if (get_data_of_day) {
       if ((pev0 = (EVENT *) calloc((size_t) NEVENTMAX, sizeof(EVENT))) == NULL) {
@@ -662,15 +703,18 @@ int main(int argc, char *argv[])
       return OK;
     }
     /* we have always 
-     * - three positions and speeds for venus
+     * - three positions and speeds for planet
+     * - three declinations and speeds for planet
      * - three positions and speeds for sun
-     * - three elongations of venus (with elongation speed)
+     * - three elongations of planet (with elongation speed)
      * - three magnitudes
      */
     memcpy(xp0, xp1, 6 * sizeof(double));	/* planet */
     memcpy(xp1, xp2, 6 * sizeof(double));
     memcpy(xh0, xh1, 6 * sizeof(double));	/* heliocentric */
     memcpy(xh1, xh2, 6 * sizeof(double));	/* heliocentric */
+    memcpy(xd0, xd1, 6 * sizeof(double));	/* declination */
+    memcpy(xd1, xd2, 6 * sizeof(double));	/* declination */
     memcpy(xs0, xs1, 6 * sizeof(double));	/* sun */
     memcpy(xs1, xs2, 6 * sizeof(double));
     memcpy(xel0, xel1, 6 * sizeof(double));	/* elongation in longitude */
@@ -691,6 +735,17 @@ int main(int argc, char *argv[])
     if (iflgret < 0) {
       fprintf(stderr, "return code %d, mesg: %s\n", iflgret, serr);
     }
+    iflgret = swe_calc(te, (int) ipl, iflag | SEFLG_EQUATORIAL, xd2, serr);
+    if (iflgret < 0) {
+      fprintf(stderr, "return code %d, mesg: %s\n", iflgret, serr);
+    }
+    /* ecliptic obliquity and nutation */
+    iflgret = swe_calc(te, SE_ECL_NUT, 0, x, serr);
+    if (iflgret < 0) {
+      fprintf(stderr, "return code %d, mesg: %s\n", iflgret, serr);
+    }
+    epstrue = x[0];
+    epsmean = x[1];
     /* true heliocentric distance */
     /* elongation of planet measured on ecliptic */
     for (i = 0; i <= 5; i++)
@@ -1069,6 +1124,44 @@ int main(int argc, char *argv[])
 	print_item(sout, t2, x[0] * RADTODEG, HUGE, x[2]);
       }
       l_noaps:;
+      if (!(do_flag & DO_DECL))
+	goto l_nodecl;
+      /* declination extrema */
+      if ((xd2[1] < xd1[1] && xd0[1] < xd1[1]) || (xd2[1] > xd1[1] && xd0[1] > xd1[1])) {
+	x0[0] = xd0[1];
+	x0[1] = xd1[1];
+	x0[2] = xd2[1];
+	find_maximum(x0[0], x0[1], x0[2], tstep, &dt, &xel);
+	t2 = te + dt;
+	for (j = 0, dt1 = tstep; j <= 4; j++, dt1 /= 3) {
+	  for (k = 0; k <= 2; k++) {
+	    switch(k) {
+	      case 0:
+		t3 = t2 - dt1;
+		break;
+	      case 1:
+		t3 = t2;
+		break;
+	      case 2:
+		t3 = t2 + dt1;
+		break;
+	    }
+	    iflgret = swe_calc(t3, (int) ipl, iflag|SEFLG_EQUATORIAL, xp, serr);
+	    x0[k] = xp[1];
+	  }
+	  find_maximum(x0[0], x0[1], x0[2], dt1, &dt, &xel);
+	  t2 = t2 + dt1 + dt;
+	}
+	iflgret = swe_calc(t2, (int) ipl, iflag|SEFLG_EQUATORIAL, xd, serr);
+	iflgret = swe_calc(t2, (int) ipl, iflag, x, serr);
+	if (xd2[1] < xd1[1]) {
+	  strcpy(sout, "max. declination.");
+	} else {
+	  strcpy(sout, "min. declination.");
+	}
+	print_item(sout, t2, x[0] * RADTODEG, HUGE, xd[1] * RADTODEG);
+      }
+      l_nodecl:;
       if (!(do_flag & DO_NODE))
 	goto l_nonode;
       if (sign_change(xh1[1] ,xh2[1])) {	// latitude sign change?
@@ -1198,7 +1291,7 @@ int main(int argc, char *argv[])
       }
       /* lunar phases */
 l_phase:
-      if (do_flag & DO_LPHASE) {
+      if (do_flag & DO_LPHASE || do_flag & DO_LPHASE0) {
 	int new_phase;
 	int old_phase;
 	int nphases = swe_d2l(360 / phase_mod);
@@ -1249,7 +1342,7 @@ l_phase:
 	}
       }
     }
-    if ((iflgret & whicheph) == 0) {
+    if (0 && (iflgret & whicheph) == 0) {
       sprintf(sout, "ephemeris %d", iflgret & SEFLG_EPHMASK);
       print_item(sout, HUGE, -1, HUGE, HUGE);
     }
@@ -1265,7 +1358,48 @@ l_phase:
   return OK;
 }
 
-static int print_motab()
+static char *set_planet_name(int ipl)
+{
+  switch(ipl) {
+    case -99:
+      planet_name = "-";
+      break;
+    case SE_SUN:
+      planet_name = "Sun";
+      break;
+    case SE_VENUS:
+      planet_name = "Venus";
+      break;
+    case SE_MERCURY:
+      planet_name = "Mercury";
+      break;
+    case SE_MARS:
+      planet_name = "Mars";
+      break;
+    case SE_JUPITER:
+      planet_name = "Jupiter";
+      break;
+    case SE_SATURN:
+      planet_name = "Saturn";
+      break;
+    case SE_URANUS:
+      planet_name = "Uranus";
+      break;
+    case SE_NEPTUNE:
+      planet_name = "Neptune";
+      break;
+    case SE_PLUTO:
+      planet_name = "Pluto";
+      break;
+    default:
+      swe_get_planet_name(ipl, spnam);
+      planet_name = spnam;
+      break;
+  }
+  return planet_name;
+}
+
+static int print_motab(void)
 {
   int i, j;
   printf("%d\n", prev_yout);
@@ -1291,10 +1425,11 @@ static int print_motab()
  * ingr45: s is "ingr45" or "ingr45 retro" , only  date and 15 [r] sign
  * phases: s is "phase" , only  date and phase number
  * if delon or dmag are HUGE, they are not printed.
+ * if global azn > 0, use local timezone
  */
 static void print_item(char *s, double teph, double dpos, double delon, double dmag)
 {
-  static char smag[10], sout[AS_MAXCH], serr[AS_MAXCH];
+  static char smag[AS_MAXCH], sout[4 * AS_MAXCH], serr[AS_MAXCH];
   int mout, dout, yout, hour, min, sec, izod;
   int ing_deg = 0;
   double hout;
@@ -1303,10 +1438,16 @@ static void print_item(char *s, double teph, double dpos, double delon, double d
   AS_BOOL is_ingress;
   AS_BOOL is_ingr45;
   AS_BOOL is_phase;
+  AS_BOOL is_decl;
   AS_BOOL is_retro = FALSE;
   char sign_deg[30];
   static AS_BOOL cycle_has_started = FALSE;
   char *jul = "";
+#if PRINTMOD
+  TTB2_RESULT tr, *trp = &tr;
+#endif
+  // test for nan cases. NaN is not equal to itself.
+  if (teph != teph || delon != delon) return;
   jut = ing_deg * is_retro; // dummy to silence compiler;
 //  static double teph_save = 0;
   teph += tzone/24;
@@ -1331,6 +1472,7 @@ static void print_item(char *s, double teph, double dpos, double delon, double d
   is_ingress =  (strncmp(s, "ingr", 4) == 0);
   is_ingr45 =  (strncmp(s, "ingr45", 6) == 0);
   is_phase =  (strncmp(s, "phas", 4) == 0);
+  is_decl =  (strstr(s, "decl") != NULL);
   if (gregflag == FALSE) {
     jul = "j";
   } 
@@ -1350,7 +1492,6 @@ static void print_item(char *s, double teph, double dpos, double delon, double d
       strcpy(sign_deg, "15");
     }
   }
-  /* compute UT and add 0.5 minutes for later rounding to minutes */
   if (transits_to_stderr && strstr(s, "transit") != NULL) {
     swe_revjul(teph, gregflag, &yout, &mout, &dout, &hout);
     if (strstr(s, "middle") != NULL) {
@@ -1362,15 +1503,32 @@ static void print_item(char *s, double teph, double dpos, double delon, double d
     }
   }
   teph += gmtoff / 24;
-  if (ephemeris_time) 
-    teph = teph;
-  else
+  if (! ephemeris_time)  {
     teph = teph - swe_deltat_ex(teph, whicheph, serr);
+  }
+  // compute UT and add 0.5 minutes for later rounding to minutes 
+  // if (do_round_min) {
+  //   teph += 0.5 / 1440.0 ;
+  // }
+#if PRINTMOD
+  if (azn > 0) {
+    if (ttb2_get_time_zone(global_ttb_mode, trp, 0, -2, azn, teph, TTB_DO_LOCAL, serr) == OK) {
+      teph += trp->dmerid / 360.0;
+    } else {
+      fprintf(stderr, "ttb2_get_time_zone azn=%d t=%lf returns %s\n", azn, teph, serr);
+    }
+  }
+#endif
   swe_revjul(teph, gregflag, &yout, &mout, &dout, &hout);
-  swe_split_deg(hout, SE_SPLIT_DEG_ROUND_SEC, &hour, &min, &sec, &secfr, &izod);
+  if (do_round_min)
+    swe_split_deg(hout, SE_SPLIT_DEG_ROUND_MIN, &hour, &min, &sec, &secfr, &izod);
+  else
+    swe_split_deg(hout, SE_SPLIT_DEG_ROUND_SEC, &hour, &min, &sec, &secfr, &izod);
   if (dmag != HUGE) {
     if (strstr(s, "brill") != NULL) {
       sprintf(smag, "    %.1fm", dmag);
+    } else if (is_decl) {
+      sprintf(smag, "%s ", dms(dmag, BIT_DECL|BIT_ROUND_SEC));
     } else {
       if (output_extra_prec)
 	sprintf(smag, "   %8.13f AU", dmag);
@@ -1384,7 +1542,10 @@ static void print_item(char *s, double teph, double dpos, double delon, double d
     if (yout != prev_yout && prev_yout != -999999)
       print_motab();
     izod = (int) (dpos + 0.1);
-    sprintf(sout, "%02d:%02d:%02d %s", hour, min, sec, znam[izod]);
+    if (do_round_min)
+      sprintf(sout, "%02d:%02d %s", hour, min,  znam[izod]);
+    else 
+      sprintf(sout, "%02d:%02d:%02d %s", hour, min, sec, znam[izod]);
     strcpy(motab[mout-1][dout-1], sout);
     prev_yout = yout;
     return;
@@ -1396,16 +1557,31 @@ static void print_item(char *s, double teph, double dpos, double delon, double d
       putchar('\n');
     else if (ipl > SE_VENUS && strncmp(s, "conj", 4) == 0)
       putchar('\n');
-    printf("%-20s%s", s, gap);
+    if (!(is_ingress || is_phase))
+      printf("%-20s%s", s, gap);
     if (date_gap) {
-      printf("%02d%s%s%s%2d%s%s%02d:%02d:%02d",
+      if (do_round_min)
+	printf("%02d%s%s%s%2d%s%s%02d:%02d",
+	     yout, gap, month_nam[mout], gap, dout, jul, gap, hour, min);
+      else
+	printf("%02d%s%s%s%2d%s%s%02d:%02d:%02d",
 	     yout, gap, month_nam[mout], gap, dout, jul, gap, hour, min, sec);
     } else {
-      printf("%02d %s %2d %s %02d:%02d:%02d ",
-	     yout, month_nam[mout], dout, jul, hour, min, sec);
+      if (do_round_min)
+	printf("%02d %s %2d %s %02d:%02d ",
+	       yout, month_nam[mout], dout, jul, hour, min);
+      else
+	printf("%02d %s %2d %s %02d:%02d:%02d ",
+	       yout, month_nam[mout], dout, jul, hour, min, sec);
     } 
+
     if (show_jd)
       printf("%sjd=%.8lf", gap, teph);
+#if PRINTMOD
+    if (azn > 0) {
+      printf(" %s", trp->tzabbr_eff);
+    }
+#endif
     printf("%s", gap);
     if (is_ingr45) {
       printf("%s", sign_deg);
@@ -1433,7 +1609,7 @@ static void print_item(char *s, double teph, double dpos, double delon, double d
       case 4:
 	strcpy(sout, " h/wane"); break;
       }
-      printf("%s%s%d", sout, gap, izod);
+      printf("%s%s%d%s", sout, gap, izod, gap);
       if (delon != HUGE) {
 	printf("%s", dms(delon, BIT_ZODIAC|BIT_ROUND_SEC));
 	delon = HUGE;
@@ -1486,16 +1662,27 @@ static void print_item(char *s, double teph, double dpos, double delon, double d
     if (col_count == 0 && line_count == 0) {
       printmod_open_page(NULL);
       print_date_time(s2);
-      if (ephemeris_time) 
-	sprintf(sout, "%s of %s  from %s through %s (ET), Astrodienst AG %s,       page %d", stit, planet_name, syear0, sdateto, s2, page_count + 1);
-      else
-	sprintf(sout, "%s of %s  from %s through %s (UT), Astrodienst AG %s,       page %d", stit, planet_name, syear0, sdateto, s2, page_count + 1);
-      if (ephemeris_time) 
+      char sz[80];
+      if (ephemeris_time) {
+        strcpy(sz, "ET");
+      } else {
+        strcpy(sz, "UT");
+        if (azn > 0)
+	  sprintf(sz, "AZN %d", azn);
+      }
+      sprintf(sout, "%s of %s  from %s through %s (%s), by Astrodienst %s,       page %d", stit, planet_name, syear0, sdateto, sz, s2, page_count + 1);
+      if (ephemeris_time || azn > 0) 
 	MoveToXYmm(xcol[col_count], ytop - 3 * line_space);
       else 
 	MoveToXYmm(xcol[col_count], ytop - 2 * line_space);
       SetFont(FT_TIM_10);
       Print(sout);
+      if (azn > 0) {
+	SetFont(FT_TIM_8);
+	MoveToXYmm(xcol[col_count], ytop - 2 * line_space);
+	sprintf(sout, "(clock times given in local time of Astrodienst Zone %d)", azn);
+	Print(sout);
+      }
       if (ephemeris_time) {
 	double delt;
 	SetFont(FT_TIM_8);
@@ -1530,7 +1717,14 @@ static void print_item(char *s, double teph, double dpos, double delon, double d
     Print(month_nam[mout]);
     ncpt = TextWidth("May") - TextWidth(month_nam[mout]);
     RmoveXcp(ncpt);
-    sprintf(sout, " %02d %s %02d:%02d", dout, jul, min / 60, min % 60);
+    if (do_round_min) {
+      sprintf(sout, " %02d %s %02d:%02d", dout, jul, hour, min);
+    } else {
+      sprintf(sout, " %02d %s %02d:%02d:%02d", dout, jul, hour, min, sec);
+    }
+    if (azn > 0) {
+      sprintf(sout + strlen(sout), " %s", trp->tzabbr_eff);
+    }
     Print(sout);
     MoveToXmm(xcol[col_count] + xpos);
     if (is_ingr45) {
@@ -1569,11 +1763,11 @@ static void print_item(char *s, double teph, double dpos, double delon, double d
 	case 1:
 	  strcpy(sout, " New"); break;
 	case 2:
-	  strcpy(sout, ""); break;
+	  strcpy(sout, " h/wax"); break;
 	case 3:
 	  strcpy(sout, " Full"); break;
 	case 4:
-	  strcpy(sout, ""); break;
+	  strcpy(sout, " h/wane"); break;
 	}
 	SetFont(FT_SYMBN);
 	Print(symb_special(SYMB_NEW_MOON + iphase - 1));
@@ -1592,7 +1786,13 @@ static void print_item(char *s, double teph, double dpos, double delon, double d
       Print("    ");
       printmod_pds(delon * DEG2CSEC, FT_SYMBS, PDS_NO_ZOD_SIGN);
     }
+    if (is_decl && fabs(dmag) > epstrue + 1 / 3600.0) {
+      printmod_set_rgb_color(70, 0, 0);
+    }
     Print(smag);
+    if (is_decl && fabs(dmag) > epstrue + 1 / 3600.0) {
+      printmod_set_black();
+    }
     PrintLn();
     line_count++;
   }
@@ -1605,7 +1805,7 @@ static char *dms(double x, int iflag)
   int k, kdeg, kmin, ksec;
   char *c = ODEGREE_STRING;
   char *sp;
-  static char s[80], s2[80];
+  static char s[AS_MAXCH], s2[80];
   int sgn;
   *s = *s2 = '\0';
   again_dms:
@@ -1622,6 +1822,11 @@ static char *dms(double x, int iflag)
     x = fmod(x, 30);
     kdeg = (long) x;
     sprintf(s, "%2d %s ", kdeg, znam[izod]);
+  } else if (iflag & BIT_DECL) {
+    c = "N";
+    if (sgn < 0) c = "S";
+    kdeg = (long) x;
+    sprintf(s, " %3d%s", kdeg, c);
   } else {
     kdeg = (long) x;
     sprintf(s, " %3d%s", kdeg, c);
@@ -1655,15 +1860,16 @@ static char *dms(double x, int iflag)
       x += izod * 30;
     goto again_dms;
   }
+  s[79] = '\0';
   strcpy(s2, s);
   sprintf(s, "%s%2d\"", s2, ksec);
   if (iflag & BIT_ROUND_SEC)
     goto return_dms;
   x -= ksec;
   k = (long) x * 10000;
-  sprintf(s, "%s.%04d", s, k);
+  sprintf(s + strlen(s), ".%04d", k);
 return_dms:
-  if (sgn < 0) {
+  if (sgn < 0 && ! (iflag & BIT_DECL)) {
     sp = strpbrk(s, "0123456789"); 
     *(sp-1) = '-';
   }
@@ -1853,7 +2059,11 @@ static int32 call_swe_calc(double tjd, int32 ipl, int32 iflag, char *star, doubl
   if (ipl == SE_FIXSTAR) {
     return swe_fixstar(star, tjd, iflag, x, serr);
   } else {
-    return swe_calc(tjd, ipl, iflag, x, serr);
+    int ret = swe_calc(tjd, ipl, iflag, x, serr);
+    if (ret < 0) {
+      fprintf(stderr, "tj=%lf  ipl=%d %s\n", tjd, ipl, serr);
+    }
+    return ret;
   }
 }
 
@@ -1863,22 +2073,9 @@ static int32 call_swe_calc(double tjd, int32 ipl, int32 iflag, char *star, doubl
  */
 static int get_crossing_bin_search(double dt, double tt0, double dang, double xta1,  double xta2,  double xtb1,  double xtb2, double *tret, int32 ipla, int32 iplb, char *stara, char *starb, int32 iflag, AS_BOOL is_transit, char *serr)
 {
-  double d12, d1, d2, tt1, xa[6], xb[6];
-  /*swe_revjul(tt0, 1, &jyear, &jmon, &jday, &jut);
-  printf("%d%02d%02d %.2f: %c - %c %d\n", jyear, jmon, jday, jut, *spa, *spb, (int) dang);*/
+  double d12, d1, tt1, xa[6], xb[6];
   d1 = swe_degnorm(xta1 - xtb1 - dang);
   if (d1 > 180) d1 -= 360;
-  d2 = swe_degnorm(xta2 - xtb2 - dang);
-  if (d2 > 180) d2 -= 360;
-#if 0
-  /* this is handled by calling function */
-  if (ipla == SE_MOON || iplb == SE_MOON) {
-    if (fabs(d1) >  20)
-      continue;
-  } else if (fabs(d1) > 5) {
-    continue;
-  }
-#endif
   while(dt > HUNDTHOFSEC) {
     dt /= 2.0;
     tt1 = tt0 + dt;
@@ -1901,8 +2098,6 @@ static int get_crossing_bin_search(double dt, double tt0, double dang, double xt
     }
     d1 = swe_degnorm(xta1 - xtb1 - dang);
     if (d1 > 180) d1 -= 360;
-    d2 = swe_degnorm(xta2 - xtb2 - dang);
-    if (d2 > 180) d2 -= 360;
   }
   *tret = tt0;
   return OK;
@@ -2016,7 +2211,7 @@ static void test_print_date(double tjd, int ipla, int iplb, char *stara, char *s
   if (strg != NULL && *strg != '\0')
     sprintf(s + strlen(s), " %s", strg);
   strcat(s, "\n");
-  printf(s);
+  printf("%s", s);
 }
 
 static char *forw_splan(char *sp)
@@ -2128,17 +2323,17 @@ dur = 0;
     fread((void *) &dorb, sizeof(double), 1, fpout);
     fread((void *) &tjd_pre, sizeof(double), 1, fpout);
     fread((void *) &tjd_post, sizeof(double), 1, fpout);
-if ((0)) { /* test output find longest possible aspect duration */
-if (ipla <= 9 && tjd_pre > 0 && tjd_post > 0 && tjd_post - tjd_pre > dur) {
-  dur = tjd_post - tjd_pre;
-  fprintf(stderr, "dur = %f\n", dur);
-} else {
-  continue;
-}
-}
+    if ((0)) { /* test output find longest possible aspect duration */
+      if (ipla <= 9 && tjd_pre > 0 && tjd_post > 0 && tjd_post - tjd_pre > dur) {
+	dur = tjd_post - tjd_pre;
+	fprintf(stderr, "dur = %f\n", dur);
+      } else {
+	continue;
+      }
+    }
     swe_get_planet_name(ipla, spl1);
     swe_get_planet_name(iplb, spl2);
-/*    if (ipla == SE_FIXSTAR) 
+    /*    if (ipla == SE_FIXSTAR) 
       strcpy(spl1, stara);
     if (iplb == SE_FIXSTAR) 
       strcpy(spl2, starb);*/
@@ -2148,7 +2343,7 @@ if (ipla <= 9 && tjd_pre > 0 && tjd_post > 0 && tjd_post - tjd_pre > dur) {
     swe_revjul(tjd, 1, &jyear, &jmon, &jday, &jut);
     sprintf(s, "%d/%02d/%02d %s: %s - %s ang=%.0f, orb=%.4f, %.5f, %.5f, %.5f", jyear, jmon, jday, hms(jut, BIT_LZEROES), spl1, spl2, dasp, dorb, tjd, tjd_pre, tjd_post);
     strcat(s, "\n");
-    fprintf(stderr, s);
+    fprintf(stderr, "%s", s);
   }
   fclose(fpout);
   return OK;
@@ -2185,7 +2380,7 @@ int32 calc_mundane_aspects(int32 iflag, double tjd0, double tjde, double tstep,
   UNUSED(xa1);
   UNUSED(xa1d);
   sprintf(foutnam, "%s/%s", PATH_FOUTNAM, FOUTNAM);
-  if ((fpout = fopen(foutnam, "w+")) == NULL) {
+  if ((fpout = fopen(foutnam, BFILE_W_CREATE)) == NULL) {
     sprintf(serr, "could not open file %s", foutnam);
     return ERR;
   }
@@ -2471,7 +2666,7 @@ static int is_node_apsis(int ipl)
   return 0;
 }
 
-#define SWEASP_DAT_RECLEN  52
+#define SWEASP_DAT_RECLEN  (5*sizeof(double) + 3 *sizeof(int32))
 #define PERIOD_PRE_POST  365 /* days */
 /* returns all aspects, that are within orb during the time (tjd +- dtol) */
 static int32 extract_data_of_day(int32 doflag, double tjd, double dtol, char *splan, char *sasp, EVENT *pev, char *serr)
@@ -2619,8 +2814,9 @@ static int32 extract_data_of_day(int32 doflag, double tjd, double dtol, char *sp
   }
 end_extract:
   fclose(fpout);
-  if (retc == ERR)
-    fprintf(stderr, serr);
+  if (retc == ERR) {
+    fprintf(stderr, "%s", serr);
+  }
   return retc;
 }
 
@@ -2925,9 +3121,10 @@ static char *hms(double x, int32 iflag)
   sp = strstr(s, c);
   if (sp != NULL) {
     *sp = ':';
-    if (strlen(ODEGREE_STRING) > 1)
+    if (strlen(ODEGREE_STRING) > 1) {
       strcpy(s2, sp + strlen(ODEGREE_STRING));
-      strcpy(sp + 1, s2);
+    }
+    strcpy(sp + 1, s2);
     *(sp + 3) = ':';
     *(sp + 8) = '\0';
   }
